@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,22 +31,39 @@ public class DemoFileUploadController {
 
     @GetMapping
     protected void doGet(
+            @RequestParam(value = "path", required = false) final String path,
             final HttpServletResponse response
     ) throws IOException {
         try {
-            final StringBuilder sb = new StringBuilder();
+            if (path == null) {
 
-            sb.append("tempdir=")
-                    .append(DemoFileUploadApplication.ServletContextAwareImpl.tempdir)
-                    .append("\n");
+                final StringBuilder sb = new StringBuilder();
+                sb.append("tempdir=")
+                        .append(DemoFileUploadApplication.ServletContextAwareImpl.tempdir)
+                        .append("\n");
 
-            {
-                if (DemoFileUploadApplication.ServletContextAwareImpl.tempdir != null) {
-                    final File[] files = DemoFileUploadApplication.ServletContextAwareImpl.tempdir.listFiles();
+                {
+                    if (DemoFileUploadApplication.ServletContextAwareImpl.tempdir != null) {
+                        final File[] files = DemoFileUploadApplication.ServletContextAwareImpl.tempdir.listFiles();
+                        if (files != null) {
+                            Arrays.sort(files);
+                            for (int i = 0; i < files.length; i++) {
+                                sb.append("tempfile_" + i + "=")
+                                        .append(files[i])
+                                        .append(" ")
+                                        .append(DataSize.ofBytes(files[i].length()))
+                                        .append("\n");
+                            }
+                        }
+                    }
+                }
+
+                {
+                    final File[] files = LOCAL.listFiles();
                     if (files != null) {
                         Arrays.sort(files);
                         for (int i = 0; i < files.length; i++) {
-                            sb.append("tempfile_" + i + "=")
+                            sb.append("file_" + i + "=")
                                     .append(files[i])
                                     .append(" ")
                                     .append(DataSize.ofBytes(files[i].length()))
@@ -53,24 +71,21 @@ public class DemoFileUploadController {
                         }
                     }
                 }
-            }
 
-            {
-                final File[] files = LOCAL.listFiles();
-                if (files != null) {
-                    Arrays.sort(files);
-                    for (int i = 0; i < files.length; i++) {
-                        sb.append("file_" + i + "=")
-                                .append(files[i])
-                                .append(" ")
-                                .append(DataSize.ofBytes(files[i].length()))
-                                .append("\n");
-                    }
+                response.setStatus(200);
+                response.getOutputStream().write(sb.toString().getBytes());
+
+            } else {
+
+                final File file = new File(path);
+                if (file.exists()) {
+                    response.setStatus(200);
+                    IOUtils.copy(new FileInputStream(file), response.getOutputStream());
+                } else {
+                    response.sendError(404, file + " not found");
                 }
-            }
 
-            response.setStatus(200);
-            response.getOutputStream().write(sb.toString().getBytes());
+            }
         } catch (final IOException e) {
             response.sendError(500, e.toString());
         }
