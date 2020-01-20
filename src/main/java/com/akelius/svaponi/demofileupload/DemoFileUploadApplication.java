@@ -1,5 +1,6 @@
 package com.akelius.svaponi.demofileupload;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
@@ -16,6 +17,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletContext;
 import java.io.File;
 
+@Slf4j
 @SpringBootApplication
 public class DemoFileUploadApplication {
 
@@ -37,36 +39,36 @@ public class DemoFileUploadApplication {
 
         @Override
         public void setServletContext(final ServletContext servletContext) {
-            System.out.println("setServletContext");
+            log.info("setServletContext");
             final File tempdir = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
             if (tempdir == null) {
-                System.out.println("null tempdir");
+                log.info("null tempdir");
             } else {
                 final FileAlterationObserver observer = new FileAlterationObserver(tempdir);
                 final FileAlterationMonitor monitor = new FileAlterationMonitor(50l);
                 final FileAlterationListener listener = new FileAlterationListenerAdaptor() {
                     @Override
                     public void onFileCreate(final File file) {
-                        System.out.println("onFileCreate: " + file);
+                        log.info("onFileCreate: " + file);
                     }
 
                     @Override
                     public void onFileDelete(final File file) {
-                        System.out.println("onFileDelete: " + file);
+                        log.info("onFileDelete: " + file);
                     }
 
                     @Override
                     public void onFileChange(final File file) {
-                        // System.out.println("onFileChange: " + file);
+                        // log.info("onFileChange: " + file);
                     }
                 };
                 observer.addListener(listener);
                 monitor.addObserver(observer);
                 try {
-                    System.out.println("FileAlterationMonitor start()");
+                    log.info("FileAlterationMonitor start()");
                     monitor.start();
                 } catch (final Exception e) {
-                    e.printStackTrace();
+                    log.error("", e);
                 }
             }
         }

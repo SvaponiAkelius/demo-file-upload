@@ -1,5 +1,6 @@
 package com.akelius.svaponi.demofileupload;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+@Slf4j
 @Controller
 @RequestMapping({
         "/file",
@@ -28,7 +30,7 @@ public class DemoFileUploadController {
             final HttpServletResponse response
     ) throws IOException {
         try {
-            System.out.println("doGet " + path);
+            log.info("doGet " + path);
             IOUtils.copy(new FileInputStream(new File(path)), response.getOutputStream());
         } catch (final IOException e) {
             response.sendError(500, e.toString());
@@ -44,7 +46,7 @@ public class DemoFileUploadController {
         try {
 
             final File outFile = new File("target/uploads", file.getOriginalFilename());
-            System.out.println("doPost " + outFile);
+            log.info("doPost " + outFile);
 
             outFile.getParentFile().mkdirs();
 
