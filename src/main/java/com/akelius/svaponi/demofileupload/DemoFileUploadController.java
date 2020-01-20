@@ -41,7 +41,7 @@ public class DemoFileUploadController {
 
                 final StringBuilder sb = new StringBuilder();
                 sb.append("tempdir=")
-                        .append(DemoFileUploadApplication.ServletContextAwareImpl.tempdir)
+                        .append(DemoFileUploadApplication.ServletContextAwareImpl.tempdir.getAbsolutePath())
                         .append("\n");
 
                 {
@@ -51,7 +51,7 @@ public class DemoFileUploadController {
                             Arrays.sort(files);
                             for (int i = 0; i < files.length; i++) {
                                 sb.append("tempfile_" + i + "=")
-                                        .append(files[i])
+                                        .append(files[i].getAbsolutePath())
                                         .append(" (")
                                         .append(formatSize(files[i]))
                                         .append(")\n");
@@ -66,7 +66,7 @@ public class DemoFileUploadController {
                         Arrays.sort(files);
                         for (int i = 0; i < files.length; i++) {
                             sb.append("file_" + i + "=")
-                                    .append(files[i])
+                                    .append(files[i].getAbsolutePath())
                                     .append(" (")
                                     .append(formatSize(files[i]))
                                     .append(")\n");
