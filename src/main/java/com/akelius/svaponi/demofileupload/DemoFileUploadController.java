@@ -27,7 +27,7 @@ import java.util.Arrays;
 })
 public class DemoFileUploadController {
 
-    File LOCAL = new File("target/uploads");
+    File LOCAL = new File("uploads");
 
     @GetMapping
     protected void doGet(
@@ -94,7 +94,6 @@ public class DemoFileUploadController {
     @PostMapping
     protected void doPost(
             @RequestParam("file") final MultipartFile file,
-            @RequestParam(value = "name", required = false) final String name,
             @RequestParam(value = "save", defaultValue = "false") final boolean save,
             final HttpServletResponse response
     ) throws ServletException, IOException {
@@ -103,7 +102,11 @@ public class DemoFileUploadController {
             log.info("doPost " + file.getOriginalFilename());
 
             if (save) {
-                final File localFile = new File("target/uploads", name == null ? file.getOriginalFilename() : name);
+                File localFile = new File(LOCAL, file.getOriginalFilename());
+                int i = 0;
+                while (localFile.exists()) {
+                    localFile = new File(LOCAL, file.getOriginalFilename() + "." + i++);
+                }
                 localFile.getParentFile().mkdirs();
                 IOUtils.copy(file.getInputStream(), new FileOutputStream(localFile));
                 final String message = file.getOriginalFilename() + " uploaded successfully as " + localFile;
