@@ -12,26 +12,27 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 @Slf4j
 @Controller
 @RequestMapping({
+        "/",
         "/file",
-        "/file4",
+        "/upload",
 })
 public class DemoFileUploadController {
 
     @GetMapping
     protected void doGet(
-            @RequestParam("path") final String path,
             final HttpServletResponse response
     ) throws IOException {
         try {
-            log.info("doGet " + path);
-            IOUtils.copy(new FileInputStream(new File(path)), response.getOutputStream());
+            final String message = "tempdir=" + DemoFileUploadApplication.ServletContextAwareImpl.tempdir + "\n"
+                    + "";
+            response.setStatus(200);
+            response.getOutputStream().write(message.getBytes());
         } catch (final IOException e) {
             response.sendError(500, e.toString());
         }
@@ -40,23 +41,23 @@ public class DemoFileUploadController {
     @PostMapping
     protected void doPost(
             @RequestParam("file") final MultipartFile file,
+            @RequestParam(value = "name", required = false) final String name,
             @RequestParam(value = "save", defaultValue = "false") final boolean save,
             final HttpServletResponse response
     ) throws ServletException, IOException {
         try {
 
-            final File outFile = new File("target/uploads", file.getOriginalFilename());
-            log.info("doPost " + outFile);
-
-            outFile.getParentFile().mkdirs();
+            log.info("doPost " + file.getOriginalFilename());
 
             if (save) {
-                IOUtils.copy(file.getInputStream(), new FileOutputStream(outFile));
-                final String message = outFile + " uploaded successfully!";
+                final File localFile = new File("target/uploads", name == null ? file.getOriginalFilename() : name);
+                localFile.getParentFile().mkdirs();
+                IOUtils.copy(file.getInputStream(), new FileOutputStream(localFile));
+                final String message = file.getOriginalFilename() + " uploaded successfully as " + localFile;
                 response.setStatus(201);
                 response.getOutputStream().write(message.getBytes());
             } else {
-                final String message = outFile + " ignored";
+                final String message = file.getOriginalFilename() + " ignored";
                 response.setStatus(200);
                 response.getOutputStream().write(message.getBytes());
             }

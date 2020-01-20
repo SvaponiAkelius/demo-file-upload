@@ -37,10 +37,12 @@ public class DemoFileUploadApplication {
     @Component
     public static class ServletContextAwareImpl implements ServletContextAware {
 
+        static File tempdir;
+
         @Override
         public void setServletContext(final ServletContext servletContext) {
             log.info("setServletContext");
-            final File tempdir = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+            tempdir = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
             if (tempdir == null) {
                 log.info("null tempdir");
             } else {
