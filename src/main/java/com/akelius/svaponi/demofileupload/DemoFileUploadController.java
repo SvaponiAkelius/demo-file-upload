@@ -94,7 +94,7 @@ public class DemoFileUploadController {
     @PostMapping
     protected void doPost(
             @RequestParam("file") final MultipartFile file,
-            @RequestParam(value = "ignore", defaultValue = "true") final boolean ignore,
+            @RequestParam(value = "ignore", defaultValue = "false") final boolean ignore,
             final HttpServletResponse response
     ) throws ServletException, IOException {
         try {
