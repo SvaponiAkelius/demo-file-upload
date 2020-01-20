@@ -38,6 +38,7 @@ public class DemoFileUploadController {
     @PostMapping
     protected void doPost(
             @RequestParam("file") final MultipartFile file,
+            @RequestParam(value = "save", defaultValue = "false") final boolean save,
             final HttpServletResponse response
     ) throws ServletException, IOException {
         try {
@@ -47,11 +48,16 @@ public class DemoFileUploadController {
 
             outFile.getParentFile().mkdirs();
 
-            IOUtils.copy(file.getInputStream(), new FileOutputStream(outFile));
-
-            final String message = outFile + " uploaded successfully!";
-            response.setStatus(201);
-            response.getOutputStream().write(message.getBytes());
+            if (save) {
+                IOUtils.copy(file.getInputStream(), new FileOutputStream(outFile));
+                final String message = outFile + " uploaded successfully!";
+                response.setStatus(201);
+                response.getOutputStream().write(message.getBytes());
+            } else {
+                final String message = outFile + " ignored";
+                response.setStatus(200);
+                response.getOutputStream().write(message.getBytes());
+            }
 
         } catch (final IOException e) {
             response.sendError(500, e.toString());
