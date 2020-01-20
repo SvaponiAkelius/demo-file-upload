@@ -51,7 +51,7 @@ public class DemoFileUploadController {
                                 sb.append("tempfile_" + i + "=")
                                         .append(files[i])
                                         .append(" ")
-                                        .append(DataSize.ofBytes(files[i].length()))
+                                        .append(formatSize(files[i]))
                                         .append("\n");
                             }
                         }
@@ -66,7 +66,7 @@ public class DemoFileUploadController {
                             sb.append("file_" + i + "=")
                                     .append(files[i])
                                     .append(" ")
-                                    .append(DataSize.ofBytes(files[i].length()))
+                                    .append(formatSize(files[i]))
                                     .append("\n");
                         }
                     }
@@ -89,6 +89,23 @@ public class DemoFileUploadController {
         } catch (final IOException e) {
             response.sendError(500, e.toString());
         }
+    }
+
+    private String formatSize(final File file) {
+        final DataSize size = DataSize.ofBytes(file.length());
+        if (size.toTerabytes() > 1) {
+            return size.toTerabytes() + " TB";
+        }
+        if (size.toGigabytes() > 1) {
+            return size.toGigabytes() + " GB";
+        }
+        if (size.toMegabytes() > 1) {
+            return size.toMegabytes() + " MB";
+        }
+        if (size.toKilobytes() > 1) {
+            return size.toKilobytes() + " KB";
+        }
+        return size.toBytes() + " Bytes";
     }
 
     @PostMapping
