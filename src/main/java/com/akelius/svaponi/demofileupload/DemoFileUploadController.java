@@ -94,14 +94,18 @@ public class DemoFileUploadController {
     @PostMapping
     protected void doPost(
             @RequestParam("file") final MultipartFile file,
-            @RequestParam(value = "save", defaultValue = "false") final boolean save,
+            @RequestParam(value = "ignore", defaultValue = "true") final boolean ignore,
             final HttpServletResponse response
     ) throws ServletException, IOException {
         try {
 
             log.info("doPost " + file.getOriginalFilename());
 
-            if (save) {
+            if (ignore) {
+                final String message = "ignore input-stream";
+                response.setStatus(200);
+                response.getOutputStream().write(message.getBytes());
+            } else {
                 File localFile = new File(LOCAL, file.getOriginalFilename());
                 int i = 0;
                 while (localFile.exists()) {
@@ -109,12 +113,8 @@ public class DemoFileUploadController {
                 }
                 localFile.getParentFile().mkdirs();
                 IOUtils.copy(file.getInputStream(), new FileOutputStream(localFile));
-                final String message = file.getOriginalFilename() + " uploaded successfully as " + localFile;
+                final String message = localFile.getAbsolutePath();
                 response.setStatus(201);
-                response.getOutputStream().write(message.getBytes());
-            } else {
-                final String message = file.getOriginalFilename() + " ignored";
-                response.setStatus(200);
                 response.getOutputStream().write(message.getBytes());
             }
 
