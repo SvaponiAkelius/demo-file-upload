@@ -47,21 +47,21 @@ public class DemoFileUploadApplication {
                 log.info("null tempdir");
             } else {
                 final FileAlterationObserver observer = new FileAlterationObserver(tempdir);
-                final FileAlterationMonitor monitor = new FileAlterationMonitor(50l);
+                final FileAlterationMonitor monitor = new FileAlterationMonitor(interval());
                 final FileAlterationListener listener = new FileAlterationListenerAdaptor() {
                     @Override
                     public void onFileCreate(final File file) {
-                        log.info("onFileCreate: " + file);
+                        log.info("onFileCreate: " + file + " " + DataSize.ofBytes(file.length()));
                     }
 
                     @Override
                     public void onFileDelete(final File file) {
-                        log.info("onFileDelete: " + file);
+                        log.info("onFileDelete: " + file + " " + DataSize.ofBytes(file.length()));
                     }
 
                     @Override
                     public void onFileChange(final File file) {
-                        // log.info("onFileChange: " + file);
+                        log.info("onFileChange: " + file + " " + DataSize.ofBytes(file.length()));
                     }
                 };
                 observer.addListener(listener);
@@ -72,6 +72,14 @@ public class DemoFileUploadApplication {
                 } catch (final Exception e) {
                     log.error("", e);
                 }
+            }
+        }
+
+        private long interval() {
+            try {
+                return Long.parseLong(System.getenv("MONITOR_INTERVAL"));
+            } catch (final NumberFormatException e) {
+                return 1000l;
             }
         }
     }
