@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 @Slf4j
@@ -50,9 +52,9 @@ public class DemoFileUploadController {
                             for (int i = 0; i < files.length; i++) {
                                 sb.append("tempfile_" + i + "=")
                                         .append(files[i])
-                                        .append(" ")
+                                        .append(" (")
                                         .append(formatSize(files[i]))
-                                        .append("\n");
+                                        .append(")\n");
                             }
                         }
                     }
@@ -65,9 +67,9 @@ public class DemoFileUploadController {
                         for (int i = 0; i < files.length; i++) {
                             sb.append("file_" + i + "=")
                                     .append(files[i])
-                                    .append(" ")
+                                    .append(" (")
                                     .append(formatSize(files[i]))
-                                    .append("\n");
+                                    .append(")\n");
                         }
                     }
                 }
@@ -94,16 +96,16 @@ public class DemoFileUploadController {
     private String formatSize(final File file) {
         final DataSize size = DataSize.ofBytes(file.length());
         if (size.toTerabytes() > 1) {
-            return size.toTerabytes() + " TB";
+            return new BigDecimal(size.toBytes()).divide(new BigDecimal(1024 * 1024 * 1024 * 1024)).setScale(2, RoundingMode.HALF_UP) + " TB";
         }
         if (size.toGigabytes() > 1) {
-            return size.toGigabytes() + " GB";
+            return new BigDecimal(size.toBytes()).divide(new BigDecimal(1024 * 1024 * 1024)).setScale(2, RoundingMode.HALF_UP) + " GB";
         }
         if (size.toMegabytes() > 1) {
-            return size.toMegabytes() + " MB";
+            return new BigDecimal(size.toBytes()).divide(new BigDecimal(1024 * 1024)).setScale(2, RoundingMode.HALF_UP) + " MB";
         }
         if (size.toKilobytes() > 1) {
-            return size.toKilobytes() + " KB";
+            return new BigDecimal(size.toBytes()).divide(new BigDecimal(1024)).setScale(2, RoundingMode.HALF_UP) + " KB";
         }
         return size.toBytes() + " Bytes";
     }
