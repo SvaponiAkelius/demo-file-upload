@@ -3,6 +3,7 @@ package com.akelius.svaponi.demofileupload;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,22 +40,32 @@ public class DemoFileUploadController {
                     .append("\n");
 
             {
-                final File[] files = DemoFileUploadApplication.ServletContextAwareImpl.tempdir.listFiles();
-                Arrays.sort(files);
-                for (int i = 0; i < files.length; i++) {
-                    sb.append("tempfile_" + i + "=")
-                            .append(files[i])
-                            .append("\n");
+                if (DemoFileUploadApplication.ServletContextAwareImpl.tempdir != null) {
+                    final File[] files = DemoFileUploadApplication.ServletContextAwareImpl.tempdir.listFiles();
+                    if (files != null) {
+                        Arrays.sort(files);
+                        for (int i = 0; i < files.length; i++) {
+                            sb.append("tempfile_" + i + "=")
+                                    .append(files[i])
+                                    .append(" ")
+                                    .append(DataSize.ofBytes(files[i].length()))
+                                    .append("\n");
+                        }
+                    }
                 }
             }
 
             {
                 final File[] files = LOCAL.listFiles();
-                Arrays.sort(files);
-                for (int i = 0; i < files.length; i++) {
-                    sb.append("file_" + i + "=")
-                            .append(files[i])
-                            .append("\n");
+                if (files != null) {
+                    Arrays.sort(files);
+                    for (int i = 0; i < files.length; i++) {
+                        sb.append("file_" + i + "=")
+                                .append(files[i])
+                                .append(" ")
+                                .append(DataSize.ofBytes(files[i].length()))
+                                .append("\n");
+                    }
                 }
             }
 
