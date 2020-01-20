@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 @Controller
@@ -24,15 +25,41 @@ import java.io.IOException;
 })
 public class DemoFileUploadController {
 
+    File LOCAL = new File("target/uploads");
+
     @GetMapping
     protected void doGet(
             final HttpServletResponse response
     ) throws IOException {
         try {
-            final String message = "tempdir=" + DemoFileUploadApplication.ServletContextAwareImpl.tempdir + "\n"
-                    + "";
+            final StringBuilder sb = new StringBuilder();
+
+            sb.append("tempdir=")
+                    .append(DemoFileUploadApplication.ServletContextAwareImpl.tempdir)
+                    .append("\n");
+
+            {
+                final File[] files = DemoFileUploadApplication.ServletContextAwareImpl.tempdir.listFiles();
+                Arrays.sort(files);
+                for (int i = 0; i < files.length; i++) {
+                    sb.append("tempfile_" + i + "=")
+                            .append(files[i])
+                            .append("\n");
+                }
+            }
+
+            {
+                final File[] files = LOCAL.listFiles();
+                Arrays.sort(files);
+                for (int i = 0; i < files.length; i++) {
+                    sb.append("file_" + i + "=")
+                            .append(files[i])
+                            .append("\n");
+                }
+            }
+
             response.setStatus(200);
-            response.getOutputStream().write(message.getBytes());
+            response.getOutputStream().write(sb.toString().getBytes());
         } catch (final IOException e) {
             response.sendError(500, e.toString());
         }
